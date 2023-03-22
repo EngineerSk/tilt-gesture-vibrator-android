@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">TiltGestureVibrator</string>
+    <string name="title">Tilt Gesture Vibrator</string>
+    <string name="normal_vibration">NORMAL VIBRATION</string>
+    <string name="click_vibration">CLICK VIBRATION</string>
+    <string name="double_click_vibration">DOUBLE CLICK VIBRATION</string>
+    <string name="tick_vibration">TICK VIBRATION</string>
+    <string name="heavy_click_effect_vibration">HEAVY CLICK EFFECT VIBRATION</string>
+    <string name="create_one_shot">Create One Shot</string>
+    <string name="create_waveform">Create Waveform</string>
+    <string name="stop_notifications">Stop notifications</string>
+    <string name="axis_info">%1$s-axis: %2$f</string>
+    <string name="compass_image_content_desc">Compass image</string>
+</resources>
