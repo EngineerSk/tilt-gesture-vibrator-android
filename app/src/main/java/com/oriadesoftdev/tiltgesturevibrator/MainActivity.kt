@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
             @RequiresApi(Build.VERSION_CODES.Q)
             override fun onReceive(context: Context?, intent: Intent?) {
                 val direction = intent?.getStringExtra(TiltGestureService.KEY_DIRECTION)
-                val angle = intent?.getDoubleExtra(TiltGestureService.KEY_ANGLE, 0.0)
+                val angle = intent?.getDoubleExtra(TiltGestureService.KEY_ANGLE, 0.0) ?: 0.0
                 val orientation = intent?.getFloatArrayExtra(TiltGestureService.KEY_ORIENTATION)
                 val angleWithDirection = angle.toString() + "  " + direction as Any?
                 when (direction) {
@@ -40,13 +40,7 @@ class MainActivity : AppCompatActivity() {
                         VibrationEffect.EFFECT_HEAVY_CLICK
                     )
                 }
-                binding.directionTextView.text = angleWithDirection
-                binding.xCoordinateValue.text =
-                    getString(R.string.axis_info, "x", orientation?.get(0))
-                binding.yCoordinateValue.text =
-                    getString(R.string.axis_info, "y", orientation?.get(1))
-                binding.zCoordinateValue.text =
-                    getString(R.string.axis_info, "z", orientation?.get(2))
+                initUI(orientation, angleWithDirection, angle)
             }
         }
     }
@@ -55,7 +49,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setTheme(R.style.Theme_TiltGestureVibrator)
         setContentView(binding.root)
-        initUI()
         initMenuProvider()
         @Suppress("DEPRECATION")
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -72,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun initMenuProvider(){
+    private fun initMenuProvider() {
         addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.menu_vibration_effect, menu)
@@ -103,38 +96,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("InlinedApi")
-    private fun initUI() {
+    private fun initUI(orientation: FloatArray?, angleWithDirection: String, angle: Double) {
         binding.apply {
-            normalVibrationButton.setOnClickListener {
-                vibrateDeviceByVersionCodeAndVibeEffect(
-                    Build.VERSION_CODES.O,
-                    VibrationEffect.DEFAULT_AMPLITUDE
-                )
-            }
-            clickVibrationButton.setOnClickListener {
-                vibrateDeviceByVersionCodeAndVibeEffect(
-                    Build.VERSION_CODES.Q,
-                    VibrationEffect.EFFECT_CLICK
-                )
-            }
-            doubleClickVibrationButton.setOnClickListener {
-                vibrateDeviceByVersionCodeAndVibeEffect(
-                    Build.VERSION_CODES.Q,
-                    VibrationEffect.EFFECT_DOUBLE_CLICK
-                )
-            }
-            tickVibrationButton.setOnClickListener {
-                vibrateDeviceByVersionCodeAndVibeEffect(
-                    Build.VERSION_CODES.Q,
-                    VibrationEffect.EFFECT_TICK
-                )
-            }
-            heavyClickVibrationButton.setOnClickListener {
-                vibrateDeviceByVersionCodeAndVibeEffect(
-                    Build.VERSION_CODES.Q,
-                    VibrationEffect.EFFECT_HEAVY_CLICK
-                )
-            }
+            compassImageView.rotation = (angle * (-1)).toFloat()
+            directionTextView.text = angleWithDirection
+            xCoordinateValue.text =
+                getString(R.string.axis_info, "x", orientation?.get(0))
+            yCoordinateValue.text =
+                getString(R.string.axis_info, "y", orientation?.get(1))
+            zCoordinateValue.text =
+                getString(R.string.axis_info, "z", orientation?.get(2))
         }
     }
 
