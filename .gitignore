@@ -15,3 +15,4 @@
 local.properties
 /app/src/main/res/xml/backup_rules.xml
 /.idea/sqlandroid.xml
+/.idea/git_toolbox_prj.xml
