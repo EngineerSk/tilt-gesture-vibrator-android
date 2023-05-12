@@ -20,10 +20,10 @@ class TiltGestureService : Service() {
     private val sensorManager: SensorManager by lazy {
         getSystemService(Context.SENSOR_SERVICE) as SensorManager
     }
-    private val accelerometer: Sensor by lazy {
+    private val accelerometer: Sensor? by lazy {
         sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
     }
-    private val magnetometer: Sensor by lazy {
+    private val magnetometer: Sensor? by lazy {
         sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
     }
 
@@ -125,11 +125,11 @@ class TiltGestureService : Service() {
 
 
     private fun registerAccelerometer() {
-        registerSensor(accelerometer)
+        accelerometer?.let { registerSensor(it) }
     }
 
     private fun registerMagnetometer() {
-        registerSensor(magnetometer)
+        magnetometer?.let { registerSensor(it) }
     }
 
     private fun registerSensor(sensor: Sensor) {
