@@ -5,12 +5,15 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.os.*
+import android.util.Log
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.view.MenuProvider
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.oriadesoftdev.tiltgesturevibrator.databinding.ActivityMainBinding
@@ -49,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setTheme(R.style.Theme_TiltGestureVibrator)
         setContentView(binding.root)
+        requestPermission()
         initMenuProvider()
         @Suppress("DEPRECATION")
         vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -86,6 +90,72 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         startForegroundServiceForSensors(false)
+    }
+
+    private val hasForegroundServicePermission: () -> Boolean = {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            checkIfPermissionGranted(android.Manifest.permission.FOREGROUND_SERVICE)
+        true
+    }
+
+    private val hasVibrateServicePermission: () -> Boolean = {
+        checkIfPermissionGranted(android.Manifest.permission.VIBRATE)
+    }
+
+    private val hasFineLocationPermission: () -> Boolean = {
+        checkIfPermissionGranted(android.Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    private val hasCoarseLocationPermission: () -> Boolean = {
+        checkIfPermissionGranted(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+    }
+
+    private val checkIfPermissionGranted: (String) -> Boolean = {
+        ActivityCompat.checkSelfPermission(
+            applicationContext,
+            it
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestPermission() {
+        val permissionsToRequest = mutableListOf<String>()
+
+        if (!hasForegroundServicePermission()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                permissionsToRequest.add(android.Manifest.permission.FOREGROUND_SERVICE)
+        }
+        if (!hasVibrateServicePermission()) {
+            permissionsToRequest.add(android.Manifest.permission.VIBRATE)
+        }
+
+        if (!hasFineLocationPermission()) {
+            permissionsToRequest.add(android.Manifest.permission.ACCESS_FINE_LOCATION)
+        }
+
+        if(!hasCoarseLocationPermission()){
+            permissionsToRequest.add(android.Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+
+        if (permissionsToRequest.isNotEmpty())
+            ActivityCompat.requestPermissions(
+                this,
+                permissionsToRequest.toTypedArray(),
+                0
+            )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 0 && grantResults.isNotEmpty()) {
+            for (i in grantResults.indices) {
+                if (grantResults[i] == PackageManager.PERMISSION_GRANTED)
+                    Log.d(TAG, "onRequestPermissionsResult: ${permissions[i]} granted...")
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -159,6 +229,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        private const val TAG = "MainActivity"
         const val DELAY = 500L
         const val VIBRATE = 1000L
         const val SLEEP = 500L
